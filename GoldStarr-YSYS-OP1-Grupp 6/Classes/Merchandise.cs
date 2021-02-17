@@ -16,6 +16,11 @@ namespace GoldStarr_YSYS_OP1_Grupp_6.Classes
         {
             return $"{Name}%{Supplier}%{Stock}%";
         }
+        public Merchandise()
+        {
+
+        }
+
         public Merchandise(string name, string supplier, int stock)
         {
             Name = name;

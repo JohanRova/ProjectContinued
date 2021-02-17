@@ -1,4 +1,5 @@
 ﻿using GoldStarr_YSYS_OP1_Grupp_6.Classes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -31,7 +32,7 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
             /*PopulatateMerchandiseCollection();
             PopulateCustomerList();
             PopulateCustomerOrderList();*/
-            AutoSaveToFileTimer();
+           // AutoSaveToFileTimer();
         }
 
 
@@ -64,7 +65,7 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
             CustomerOrderCollection.Add(new CustomerOrder(CustomerCollection[1], MerchandiseCollection[1], 5));
             CustomerOrderCollection.Add(new CustomerOrder(CustomerCollection[2], MerchandiseCollection[2], 5));
             CustomerOrderCollection.Add(new CustomerOrder(CustomerCollection[3], MerchandiseCollection[3], 5));
-        }*/
+        }
 
         private void AutoSaveToFileTimer()
         {
@@ -77,184 +78,36 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
 
         void AutosaveToFile(object sender, object e)
         {
-            SaveCustomersToFile();
-            SaveMerchandiseStockToFile();
-            SaveCustomerOrderToFile("OrderSaveFile.sav", CustomerOrderCollection);
-            SaveCustomerOrderToFile("BacklogFile.sav", BacklogCustomerOrderCollection);
-        }
-        public async void SaveMerchandiseStockToFile()
-        {
-            StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-            StorageFile storageFile = await storageFolder.CreateFileAsync("MerchandiseSaveFile.sav", CreationCollisionOption.OpenIfExists);
-            var stream = await storageFile.OpenAsync(FileAccessMode.ReadWrite);
-            using (var outputStream = stream.GetOutputStreamAt(0))
-            {
-                using (var dataWriter = new Windows.Storage.Streams.DataWriter(outputStream))
-                {
-                    for (int i = 0; i < MerchandiseCollection.Count; i++)
-                    {
-                        dataWriter.WriteString($"{MerchandiseCollection[i].ToString()}\n");
-                        await dataWriter.StoreAsync();
-                        await outputStream.FlushAsync();
-                    }
-                }
-            }
-            stream.Dispose();
-        }
-        public async void LoadMerchandiseStockToFile()
-        {
-            try
-            {
-                StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-                StorageFile storageFile = await storageFolder.GetFileAsync("MerchandiseSaveFile.sav");
-                string text;
-                var stream = await storageFile.OpenAsync(Windows.Storage.FileAccessMode.Read);
-                ulong size = stream.Size;
-                using (var inputStream = stream.GetInputStreamAt(0))
-                {
-                    using (var dataReader = new Windows.Storage.Streams.DataReader(inputStream))
-                    {
-                        uint numBytesLoaded = await dataReader.LoadAsync((uint)size);
-                        text = dataReader.ReadString(numBytesLoaded);
-                    }
-                }
-                text = text.Replace("\n", string.Empty);
-                string[] words = text.Split('%');
-                for (int i = 0; i < words.Length - 1; i += 3)
-                {
+        }*/
 
-                    Merchandise tempMerch = new Merchandise(words[i], words[i + 1], Int32.Parse(words[i + 2]));
-                    MerchandiseCollection.Add(tempMerch);
-                }
-            }
-            catch (System.IO.FileNotFoundException e)
-            {
-                errorMessage += $"{e.Message}\n";
-            }
-        }
-        public async void SaveCustomersToFile()
+        public async void UniversalSaver<T>(string filename, ObservableCollection<T> collectionName)
         {
-            StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-            StorageFile storageFile = await storageFolder.CreateFileAsync("CustomerSaveFile.sav", CreationCollisionOption.OpenIfExists);
-            var stream = await storageFile.OpenAsync(FileAccessMode.ReadWrite);
-            using (var outputStream = stream.GetOutputStreamAt(0))
-            {
-                using (var dataWriter = new Windows.Storage.Streams.DataWriter(outputStream))
-                {
-                    for (int i = 0; i < CustomerCollection.Count; i++)
-                    {
-                        dataWriter.WriteString($"{CustomerCollection[i].ToString()}\n");
-                        await dataWriter.StoreAsync();
-                        await outputStream.FlushAsync();
-                    }
-                }
-            }
-            stream.Dispose();
+            string json = JsonConvert.SerializeObject(collectionName);
+            StorageFile file = await ApplicationData.Current.LocalFolder.CreateFileAsync(filename, CreationCollisionOption.OpenIfExists);
+            await FileIO.WriteTextAsync(file, json);
         }
-        public async void LoadCustomersFromFile()
+        public void SaveAll()
         {
-            try
-            {
-                StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-                StorageFile storageFile = await storageFolder.GetFileAsync("CustomerSaveFile.sav");
-                string text;
-                var stream = await storageFile.OpenAsync(Windows.Storage.FileAccessMode.Read);
-                ulong size = stream.Size;
-                using (var inputStream = stream.GetInputStreamAt(0))
-                {
-                    using (var dataReader = new Windows.Storage.Streams.DataReader(inputStream))
-                    {
-                        uint numBytesLoaded = await dataReader.LoadAsync((uint)size);
-                        text = dataReader.ReadString(numBytesLoaded);
-                    }
-                }
-                text = text.Replace("\n", string.Empty);
-                string[] words = text.Split('%');
-                for (int i = 0; i < words.Length - 1; i += 3)
-                {
-
-                    Customer tempCustomer = new Customer(words[i], words[i + 1], words[i + 2]);
-                    CustomerCollection.Add(tempCustomer);
-                }
-            }
-            catch (System.IO.FileNotFoundException e)
-            {
-                errorMessage += $"{e.Message}\n";
-            }
+            UniversalSaver<Merchandise>("merchandise.json", MerchandiseCollection);
+            UniversalSaver<Customer>("customers.json", CustomerCollection);
+            UniversalSaver<CustomerOrder>("orders.json", CustomerOrderCollection);
         }
 
-        public async void SaveOrdersToFile()
+        public async Task<ObservableCollection<T>> UniversalLoader<T>(string filename)
         {
-            StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-            StorageFile storageFile = await storageFolder.CreateFileAsync("OrderSaveFile.sav", CreationCollisionOption.OpenIfExists);
-            var stream = await storageFile.OpenAsync(FileAccessMode.ReadWrite);
-            using (var outputStream = stream.GetOutputStreamAt(0))
-            {
-                using (var dataWriter = new Windows.Storage.Streams.DataWriter(outputStream))
-                {
-                    for (int i = 0; i < CustomerOrderCollection.Count; i++)
-                    {
-                        dataWriter.WriteString($"{CustomerOrderCollection[i].ConvertToSaveData()}%\n");
-                        await dataWriter.StoreAsync();
-                        await outputStream.FlushAsync();
-                    }
-                }
-            }
-            stream.Dispose();
-        }
-        
-        public async void LoadCustomerOrdersFromFile(string SaveFileName, ObservableCollection<CustomerOrder> customerOrders)
-        {
-            try
-            {
-                StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-                StorageFile storageFile = await storageFolder.GetFileAsync(SaveFileName);
-                string text;
-                var stream = await storageFile.OpenAsync(Windows.Storage.FileAccessMode.Read);
-                ulong size = stream.Size;
-                using (var inputStream = stream.GetInputStreamAt(0))
-                {
-                    using (var dataReader = new Windows.Storage.Streams.DataReader(inputStream))
-                    {
-                        uint numBytesLoaded = await dataReader.LoadAsync((uint)size);
-                        text = dataReader.ReadString(numBytesLoaded);
-                    }
-                }
-                text = text.Replace("\n", string.Empty);
-                string[] words = text.Split(new char[] { '%', '¤' });
-                for (int i = 0; i < words.Length - 1; i += 10)
-                {
-                    CustomerOrder tempOrder = new CustomerOrder(new Customer(words[i+1], words[i+2], words[i+3]), new Merchandise(words[i+5], words[i+6], Int32.Parse(words[i+7])), Int32.Parse(words[i + 9]));
-                    tempOrder.OrderDateTime = DateTime.Parse(words[i]);
-                    customerOrders.Add(tempOrder);
-                }
-            }
-            catch (System.IO.FileNotFoundException e)
-            {
-                errorMessage += $"{e.Message}\n";
-            }
-        }
-        public async void SaveCustomerOrderToFile(string SaveFileName, ObservableCollection<CustomerOrder> customerOrders)
-        {
-            StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-            StorageFile storageFile = await storageFolder.CreateFileAsync(SaveFileName, CreationCollisionOption.OpenIfExists);
-            var stream = await storageFile.OpenAsync(FileAccessMode.ReadWrite);
-            using (var outputStream = stream.GetOutputStreamAt(0))
-            {
-                using (var dataWriter = new Windows.Storage.Streams.DataWriter(outputStream))
-                {
-                    for (int i = 0; i < customerOrders.Count; i++)
-                    {
-                        dataWriter.WriteString($"{customerOrders[i].ConvertToSaveData()}%\n");
-                        await dataWriter.StoreAsync();
-                        await outputStream.FlushAsync();
-                    }
-                }
-            }
-            stream.Dispose();
+            StorageFile file = await ApplicationData.Current.LocalFolder.GetFileAsync(filename);
+            await FileIO.ReadTextAsync(file);
+            string json = await FileIO.ReadTextAsync(file);
+            ObservableCollection<T> collectionName = JsonConvert.DeserializeObject<ObservableCollection<T>>(json);
+            return collectionName;
         }
 
-
+        public async void UniversalListInitializer()
+        {
+            MerchandiseCollection = await UniversalLoader<Merchandise>("merchandise.json");
+            CustomerCollection = await UniversalLoader<Customer>("customers.json");
+            CustomerOrderCollection = await UniversalLoader<CustomerOrder>("orders.json");
+        }
         
         public string GetErrors()
         {
