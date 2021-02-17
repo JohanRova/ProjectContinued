@@ -7,6 +7,8 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Core.Preview;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -44,6 +46,34 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             Frame rootFrame = Window.Current.Content as Frame;
+
+
+
+            //App close confirmation along with save.
+            async void App_CloseRequested(object sender, SystemNavigationCloseRequestedPreviewEventArgs f)
+            {
+                Deferral deferral = f.GetDeferral();
+                MessageDialog dialog = new MessageDialog("Are you sure you want to exit? Your progress will be saved.", "Exit");
+                UICommand confirmCommand = new UICommand("Save and exit.");
+                UICommand cancelCommand = new UICommand("No");
+                dialog.Commands.Add(confirmCommand);
+                dialog.Commands.Add(cancelCommand);
+                if (await dialog.ShowAsync() == cancelCommand)
+                {
+                    f.Handled = true;
+                }
+                else
+                {
+                    Frame currentFrame = Window.Current.Content as Frame;
+                    MainPage page1 = currentFrame.Content as MainPage;
+                    page1.SaveOnClose();
+                }
+                deferral.Complete();
+            }
+            //Fires event when user tries to close app
+            SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += App_CloseRequested;
+            Window.Current.Activate();
+            
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active

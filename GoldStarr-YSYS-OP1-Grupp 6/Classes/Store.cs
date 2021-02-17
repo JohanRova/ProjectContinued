@@ -29,10 +29,6 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
             CustomerOrderCollection = new ObservableCollection<CustomerOrder>();
             BacklogCustomerOrderCollection = new ObservableCollection<CustomerOrder>();
             SupplierCollection = new ObservableCollection<string>();
-            /*PopulatateMerchandiseCollection();
-            PopulateCustomerList();
-            PopulateCustomerOrderList();*/
-           // AutoSaveToFileTimer();
         }
 
 

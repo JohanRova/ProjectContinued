@@ -12,10 +12,6 @@ namespace GoldStarr_YSYS_OP1_Grupp_6.Classes
         public string Supplier { get; set; }
         public int Stock { get; set; }
 
-        public override string ToString()
-        {
-            return $"{Name}%{Supplier}%{Stock}%";
-        }
         public Merchandise()
         {
 

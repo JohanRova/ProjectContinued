@@ -13,11 +13,6 @@ namespace GoldStarr_YSYS_OP1_Grupp_6.Classes
         public string Address { get; set; }
         public string PhoneNumber { get; set; }
 
-        public override string ToString()
-        {
-            return $"{Name}%{Address}%{PhoneNumber}%";
-        }
-
         public Customer(string name, string address, string phonenumber = null)
         {
             Name = name;
@@ -25,6 +20,5 @@ namespace GoldStarr_YSYS_OP1_Grupp_6.Classes
             PhoneNumber = phonenumber;
         }
 
-   
     }
 }

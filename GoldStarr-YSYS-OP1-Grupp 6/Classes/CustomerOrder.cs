@@ -20,10 +20,5 @@ namespace GoldStarr_YSYS_OP1_Grupp_6.Classes
             OrderingCustomer = customer;
             Amount = amount;
         }
-
-        public string ConvertToSaveData()
-        {
-            return $"{OrderDateTime}¤{OrderingCustomer}¤{OrderedProduct}¤{Amount}";
-        }
     }
 }
