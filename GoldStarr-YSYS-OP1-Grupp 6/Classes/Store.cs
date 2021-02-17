@@ -1,4 +1,5 @@
 ﻿using GoldStarr_YSYS_OP1_Grupp_6.Classes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -82,7 +83,7 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
             SaveCustomerOrderToFile("OrderSaveFile.sav", CustomerOrderCollection);
             SaveCustomerOrderToFile("BacklogFile.sav", BacklogCustomerOrderCollection);
         }
-        public async void SaveMerchandiseStockToFile()
+        /*public async void SaveMerchandiseStockToFile()
         {
             StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
             StorageFile storageFile = await storageFolder.CreateFileAsync("MerchandiseSaveFile.sav", CreationCollisionOption.OpenIfExists);
@@ -100,7 +101,15 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
                 }
             }
             stream.Dispose();
+        }*/
+
+        public async void SaveMerchandiseStockToFile()
+        {
+            string json = JsonConvert.SerializeObject(MerchandiseCollection);
+            var file = await ApplicationData.Current.LocalFolder.CreateFileAsync("savefile.json", CreationCollisionOption.OpenIfExists);
+            await FileIO.WriteTextAsync(file, json);
         }
+
         public async void LoadMerchandiseStockToFile()
         {
             try
