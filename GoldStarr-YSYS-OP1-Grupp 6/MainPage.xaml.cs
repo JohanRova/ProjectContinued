@@ -33,6 +33,7 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
         {
             this.InitializeComponent();
             TempStores.ResetProperties();
+            store.UniversalListInitializer();
             /*store.TryFindingSaves("CustomerSaveFile.sav");
             store.TryFindingSaves("MerchandiseSaveFile.sav");
             store.TryFindingSaves("OrderSaveFile");
@@ -53,10 +54,6 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
                 TextBlockErrorMessageToCopy.Text = store.GetErrors();
             }
             */
-            store.LoadMerchandiseStockToFile();
-            store.LoadCustomerOrdersFromFile("OrderSaveFile.sav", store.CustomerOrderCollection);
-            store.LoadCustomerOrdersFromFile("BacklogFile.sav", store.BacklogCustomerOrderCollection);
-            store.LoadCustomersFromFile();
         }
 
         public void HideInfo()
@@ -94,8 +91,8 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
 
-            store.SaveCustomersToFile();
-            store.SaveMerchandiseStockToFile();
+            //store.SaveCustomersToFile();
+            //store.SaveMerchandiseStockToFile();
 
         }
 
@@ -107,10 +104,11 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
 
         private void onSaveFileClick(object sender, RoutedEventArgs e)
         {
-            store.SaveCustomersToFile();
-            store.SaveMerchandiseStockToFile();
-            store.SaveCustomerOrderToFile("OrderSaveFile.sav", store.CustomerOrderCollection);
-            store.SaveCustomerOrderToFile("BacklogFile.sav", store.BacklogCustomerOrderCollection);
+            //store.SaveCustomersToFile();
+            store.SaveAll();
+            //store.SaveMerchandiseStockToFile();
+            //store.SaveCustomerOrderToFile("OrderSaveFile.sav", store.CustomerOrderCollection);
+            //store.SaveCustomerOrderToFile("BacklogFile.sav", store.BacklogCustomerOrderCollection);
         }
 
         private void GoToSupplierPageButton_Click(object sender, RoutedEventArgs e)
