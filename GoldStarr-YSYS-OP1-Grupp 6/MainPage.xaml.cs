@@ -1,5 +1,6 @@
 ﻿using GoldStarr_YSYS_OP1_Grupp_6.Classes;
 using GoldStarr_YSYS_OP1_Grupp_6.InFramePages;
+using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -34,8 +35,20 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
         {
             this.InitializeComponent();
             TempStores.ResetProperties();
-            store.UniversalListInitializer();
-            
+            //store.UniversalListInitializer();
+            //SQLiteDataReader test
+
+            SqliteConnection sqliteConnection = new SqliteConnection("Data Source=Merchandise.db;");
+            sqliteConnection.Open();
+            SqliteCommand selectCommand = new SqliteCommand("SELECT * from merch", sqliteConnection);
+            SqliteDataReader query;
+            query = selectCommand.ExecuteReader();
+            List<string> entries = new List<string>();
+            while(query.Read())
+            {
+                store.MerchandiseCollection.Add(new Merchandise(query.GetString(0), query.GetString(1), Convert.ToInt32(query.GetString(2))));
+            }
+            //SQLite testing end
         }
 
         public void SaveOnClose()

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Xaml;
+using SQLitePCL;
 
 namespace GoldStarr_YSYS_OP1_Grupp_6
 {
@@ -21,6 +22,7 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
         public ObservableCollection<CustomerOrder> BacklogCustomerOrderCollection;
         public ObservableCollection<string> SupplierCollection;
         private string errorMessage = string.Empty;
+        
 
         public Store()
         {
@@ -31,7 +33,10 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
             SupplierCollection = new ObservableCollection<string>();
         }
 
-
+        public void database()
+        {
+            var path = Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, "data", "sql.sqlite");
+        }
 
         public void PopulatateMerchandiseCollection()
         {
@@ -61,19 +66,6 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
             CustomerOrderCollection.Add(new CustomerOrder(CustomerCollection[1], MerchandiseCollection[1], 5));
             CustomerOrderCollection.Add(new CustomerOrder(CustomerCollection[2], MerchandiseCollection[2], 5));
             CustomerOrderCollection.Add(new CustomerOrder(CustomerCollection[3], MerchandiseCollection[3], 5));
-        }
-
-        private void AutoSaveToFileTimer()
-        {
-            DispatcherTimer dispatcherTimer;
-            dispatcherTimer = new DispatcherTimer();
-            dispatcherTimer.Tick += AutosaveToFile;
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 30);
-            dispatcherTimer.Start();
-        }
-
-        void AutosaveToFile(object sender, object e)
-        {
         }*/
 
         public async void UniversalSaver<T>(string filename, ObservableCollection<T> collectionName)

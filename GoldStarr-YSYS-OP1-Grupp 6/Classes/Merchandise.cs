@@ -17,6 +17,17 @@ namespace GoldStarr_YSYS_OP1_Grupp_6.Classes
 
         }
 
+        //SQLite testing start
+
+        
+
+
+
+
+
+        //SQLite testing end
+
+
         public Merchandise(string name, string supplier, int stock)
         {
             Name = name;
