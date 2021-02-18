@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using SQLitePCL;
+using Microsoft.Data.Sqlite;
+using System.Data;
+using Dapper;
 
 namespace GoldStarr_YSYS_OP1_Grupp_6
 {
@@ -22,7 +25,8 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
         public ObservableCollection<CustomerOrder> BacklogCustomerOrderCollection;
         public ObservableCollection<string> SupplierCollection;
         private string errorMessage = string.Empty;
-        
+        SqliteConnection sqliteConnection = new SqliteConnection("Data Source=Merchandise.db;");
+
 
         public Store()
         {
@@ -31,13 +35,81 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
             CustomerOrderCollection = new ObservableCollection<CustomerOrder>();
             BacklogCustomerOrderCollection = new ObservableCollection<CustomerOrder>();
             SupplierCollection = new ObservableCollection<string>();
-        }
 
-        public void database()
+        }
+        //SQLite test
+        /*public void database()
         {
             var path = Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, "data", "sql.sqlite");
+        }*/
+        public void OpenDatabaseConnection()
+        {
+            sqliteConnection.Open();
         }
 
+        public void savetodb()
+        {
+            sqliteConnection.Open();
+            using (SqliteTransaction transaction = sqliteConnection.BeginTransaction())
+            {
+                SqliteCommand command = sqliteConnection.CreateCommand();
+                command.CommandText =@"INSERT INTO merch(Name, Supplier, Stock) VALUES ($value, $value2, $value3) on conflict(Name) do update set Stock = $value3";
+
+                SqliteParameter parameter = command.CreateParameter();
+                parameter.ParameterName = "$value";
+                command.Parameters.Add(parameter);
+
+                SqliteParameter parameter2 = command.CreateParameter();
+                parameter2.ParameterName = "$value2";
+                command.Parameters.Add(parameter2);
+                
+                SqliteParameter parameter3 = command.CreateParameter();
+                parameter3.ParameterName = "$value3";
+                command.Parameters.Add(parameter3);
+
+                foreach(Merchandise merchandise in MerchandiseCollection)
+                {
+                    parameter.Value = merchandise.Name;
+                    parameter2.Value = merchandise.Supplier;
+                    parameter3.Value = merchandise.Stock;
+                    command.ExecuteNonQuery();
+
+                }
+
+                transaction.Commit();
+            }
+
+        }
+
+        
+        public void readfrombdb()
+        {
+            OpenDatabaseConnection();
+            SqliteCommand selectCommand = new SqliteCommand("SELECT * from merch", sqliteConnection);
+            SqliteDataReader query = selectCommand.ExecuteReader();
+            while (query.Read())
+            {
+                MerchandiseCollection.Add(new Merchandise(query.GetString(0), query.GetString(1), Convert.ToInt32(query.GetString(2))));
+            }
+            selectCommand = new SqliteCommand("Select * from customers", sqliteConnection);
+            query = selectCommand.ExecuteReader();
+            while (query.Read())
+            {
+
+            }
+        }
+
+
+        //SQLite end
+
+        //Populate... methods are only to populate the lists if there are no savefiles to read from, or if the save files aren't populated with data. 
+
+        public void PopulateAll()
+        {
+            PopulatateMerchandiseCollection();
+            PopulateCustomerList();
+            PopulateCustomerOrderList();
+        }
         public void PopulatateMerchandiseCollection()
         {
             MerchandiseCollection.Add(new Merchandise("Marabou Schweizernöt", "Marabou", 15));
@@ -48,7 +120,6 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
             MerchandiseCollection.Add(new Merchandise("Hallonsaft", "BOB", 15));
             MerchandiseCollection.Add(new Merchandise("Fanta", "Coca Cola Company", 125));
         }
-
         public void PopulateCustomerList()
         {
             CustomerCollection.Add(new Customer("Abdi Anderson", "Limhamnsvägen 27, Malmö"));
@@ -60,13 +131,12 @@ namespace GoldStarr_YSYS_OP1_Grupp_6
             CustomerCollection.Add(new Customer("Arthur Shelby", "Lommavägen 13, Oxie"));
             
         }
-
-        /*public void PopulateCustomerOrderList()
+        public void PopulateCustomerOrderList()
         {
             CustomerOrderCollection.Add(new CustomerOrder(CustomerCollection[1], MerchandiseCollection[1], 5));
             CustomerOrderCollection.Add(new CustomerOrder(CustomerCollection[2], MerchandiseCollection[2], 5));
             CustomerOrderCollection.Add(new CustomerOrder(CustomerCollection[3], MerchandiseCollection[3], 5));
-        }*/
+        }
 
         public async void UniversalSaver<T>(string filename, ObservableCollection<T> collectionName)
         {
